@@ -143,7 +143,7 @@ int main() {
 	}
 	
 	// set up the vertex data and buffers for the terrain and skybox, and load the texture for the terrain
-	setupGroundBuffers();
+	setupHeightmapTerrain("heightmap.png");
 	setupSkyboxBuffers();
 	unsigned int groundTexture = LoadTexture("grass.jpg");
 
@@ -183,8 +183,8 @@ int main() {
 		glUseProgram(shaderProgram);
 
 		// set the model, view, and projection matrices
-		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-		glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 5.0f, 15.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 500.0f);
+		glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 100.0f, 180.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		glm::mat4 model = glm::mat4(1.0f);
 
 		// set the uniform variables for the model, view, and projection matrices in the shader program
@@ -197,10 +197,11 @@ int main() {
 
 		// bind the texture and draw the terrain
 		glBindTexture(GL_TEXTURE_2D, groundTexture);
-		glBindVertexArray(groundVAO);
+
+		glBindVertexArray(terrainVAO);
 
 		// draw the terrain using the EBO to specify the indices of the vertices to draw
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, terrainIndexCount, GL_UNSIGNED_INT, 0);
 
 		// ---------------------------------
 		//  DRAW SKYBOX

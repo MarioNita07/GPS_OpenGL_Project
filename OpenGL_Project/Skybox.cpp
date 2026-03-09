@@ -8,6 +8,7 @@ unsigned int skyboxVAO, skyboxVBO;
 
 // The 3D coordinates for the vertices of the skybox cube.
 float skyboxVertices[108] = {
+	// Back face
 	-1.0f,  1.0f, -1.0f,
 	-1.0f, -1.0f, -1.0f,
 	 1.0f, -1.0f, -1.0f,
@@ -15,13 +16,15 @@ float skyboxVertices[108] = {
 	 1.0f,  1.0f, -1.0f,
 	-1.0f,  1.0f, -1.0f,
 
+	// Left face
 	-1.0f, -1.0f,  1.0f,
 	-1.0f, -1.0f, -1.0f,
 	-1.0f,  1.0f, -1.0f,
 	-1.0f,  1.0f, -1.0f,
 	-1.0f,  1.0f,  1.0f,
 	-1.0f, -1.0f,  1.0f,
-
+	
+	 // Right face
 	 1.0f, -1.0f, -1.0f,
 	 1.0f, -1.0f,  1.0f,
 	 1.0f,  1.0f,  1.0f,
@@ -29,6 +32,7 @@ float skyboxVertices[108] = {
 	 1.0f,  1.0f, -1.0f,
 	 1.0f, -1.0f, -1.0f,
 
+	 // Front face
 	-1.0f, -1.0f,  1.0f,
 	-1.0f,  1.0f,  1.0f,
 	 1.0f,  1.0f,  1.0f,
@@ -36,6 +40,7 @@ float skyboxVertices[108] = {
 	 1.0f, -1.0f,  1.0f,
 	-1.0f, -1.0f,  1.0f,
 
+	// Top face
 	-1.0f,  1.0f, -1.0f,
 	 1.0f,  1.0f, -1.0f,
 	 1.0f,  1.0f,  1.0f,
@@ -43,6 +48,7 @@ float skyboxVertices[108] = {
 	-1.0f,  1.0f,  1.0f,
 	-1.0f,  1.0f, -1.0f,
 
+	// Bottom face
 	-1.0f, -1.0f, -1.0f,
 	-1.0f, -1.0f,  1.0f,
 	 1.0f, -1.0f, -1.0f,

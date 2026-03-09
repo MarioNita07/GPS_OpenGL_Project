@@ -1,6 +1,7 @@
 #include "Terrain.h"
 #include <glad/glad.h>
 #include <iostream>
+#include <vector>
 #include "stb_image.h"
 
 
@@ -16,12 +17,12 @@ unsigned int groundIndices[6] = {
 	1, 2, 3 // Second Triangle
 };
 
-// VAO, VBO, and EBO for the terrain
+// VAO, VBO, and EBO for the ground
 unsigned int groundVAO, groundVBO, groundEBO;
 
-// function to set up the vertex data and buffers for the terrain
+// function to set up the vertex data and buffers for the ground
 void setupGroundBuffers() {
-	// generate and bind the VAO, VBO, and EBO for the terrain
+	// generate and bind the VAO, VBO, and EBO for the ground
 	glGenVertexArrays(1, &groundVAO);
 	glGenBuffers(1, &groundVBO);
 	glGenBuffers(1, &groundEBO);
@@ -31,7 +32,7 @@ void setupGroundBuffers() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, groundEBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(groundIndices), groundIndices, GL_STATIC_DRAW);
 
-	// set the vertex attribute pointers for the terrain
+	// set the vertex attribute pointers for the ground
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
@@ -79,4 +80,94 @@ unsigned int LoadTexture(const char* filename) {
 	stbi_image_free(data);
 
 	return textureID;
+}
+
+// Define the terrain variables
+unsigned int terrainVAO, terrainVBO, terrainEBO;
+unsigned int terrainIndexCount;
+
+void setupHeightmapTerrain(const char* filepath) {
+	int width, height, nrChannels;
+
+	// Set flip the image vertically on load to false
+	stbi_set_flip_vertically_on_load(false);
+	unsigned char* data = stbi_load(filepath, &width, &height, &nrChannels, 0);
+
+	if (!data) {
+		std::cout << "Failed to load heightmap: " << filepath << std::endl;
+		return;
+	}
+
+	std::vector<float> vertices;
+
+	// Scale and shift factors for the height values
+	float yScale = 64.0f / 256.0f;
+	float yShift = 16.0f;
+
+	// Generate vertices
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+			// Get the pixel color
+			unsigned char* texel = data + (j + width * i) * nrChannels;
+			unsigned char y = texel[0];
+
+			vertices.push_back(-width / 2.0f + j); // X coordinate
+			vertices.push_back((int)y * yScale - yShift); // Y coordinate
+			vertices.push_back(-height / 2.0f + i); // Z coordinate
+
+			// Texture coordinates
+			vertices.push_back((float)j / float(width) * 10.0f);
+			vertices.push_back((float)i / float(height) * 10.0f);
+		}
+	}
+
+	// Free the image data
+	stbi_image_free(data);
+	stbi_set_flip_vertically_on_load(true); // Reset the flip state for future texture loads
+
+	// Generate indices
+	std::vector<unsigned int> indices;
+	for (int i = 0; i < height - 1; i++) {
+		for (int j = 0; j < width - 1; j++) {
+			unsigned int topLeft = (i * width) + j;
+			unsigned int topRight = topLeft + 1;
+			unsigned int bottomLeft = ((i + 1) * width) + j;
+			unsigned int bottomRight = bottomLeft + 1;
+
+			// First triangle
+			indices.push_back(topLeft);
+			indices.push_back(bottomLeft);
+			indices.push_back(topRight);
+			// Second triangle
+			indices.push_back(topRight);
+			indices.push_back(bottomLeft);
+			indices.push_back(bottomRight);
+		}
+	}
+
+	// Save the count so we know how many to draw in the main loop
+	terrainIndexCount = indices.size();
+
+	// Generate and bind the VAO, VBO, and EBO for the terrain
+	glGenVertexArrays(1, &terrainVAO);
+	glGenBuffers(1, &terrainVBO);
+	glGenBuffers(1, &terrainEBO);
+
+	glBindVertexArray(terrainVAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, terrainVBO);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrainEBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+
+	// Position attr
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	// Texture attr
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	glBindVertexArray(0);
 }
